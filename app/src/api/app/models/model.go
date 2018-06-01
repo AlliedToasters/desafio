@@ -12,5 +12,5 @@ type ItemServiceInterface interface {
 	Item(id string) (*Item, error)
 	Items() ([]*Item, error)
 	CreateItem(i *Item) error
-	DeleteItem(id string) error
+	DeleteId(id string) (*Item, error)
 }

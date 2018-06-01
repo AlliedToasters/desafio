@@ -4,6 +4,7 @@ import (
 	"api/app/models"
 	"database/sql"
 	"strconv"
+	"fmt"
 )
 
 // ItemService ...
@@ -23,7 +24,20 @@ func (s *ItemService) Item(id string) (*models.Item, error) {
 
 // Items ...
 func (s *ItemService) Items() ([]*models.Item, error) {
-	return nil, nil
+	rows, err := s.DB.Query(`SELECT id, name, description FROM items`)
+  defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	var items []*models.Item
+	for rows.Next() {
+		var item models.Item
+		if err := rows.Scan(&item.ID, &item.Name, &item.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, &item)
+	}
+	return items, nil
 }
 
 // CreateItem ...
@@ -49,6 +63,21 @@ func (s *ItemService) CreateItem(i *models.Item) error {
 }
 
 // DeleteItem ...
-func (s *ItemService) DeleteItem(id string) error {
-	return nil
+func (s *ItemService) DeleteId(id string) (*models.Item, error) {
+	//Verify entry exists...
+	item, err := s.Item(id)
+	if err != nil {
+		return nil, err
+	}
+	stmt, err := s.DB.Prepare(`DELETE FROM items WHERE id = ?`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	response, err := stmt.Exec(id)
+	fmt.Print(response)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
 }
