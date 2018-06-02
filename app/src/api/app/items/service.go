@@ -63,7 +63,7 @@ func (s *ItemService) CreateItem(i *models.Item) error {
 }
 
 // DeleteItem ...
-func (s *ItemService) DeleteId(id string) (*models.Item, error) {
+func (s *ItemService) DeleteItem(id string) (*models.Item, error) {
 	//Verify entry exists...
 	item, err := s.Item(id)
 	if err != nil {

@@ -1,8 +1,9 @@
-FROM golang:latest 
+FROM golang:latest
 
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/go-sql-driver/mysql
 
-ADD ./src/api /go/src/api 
+ADD ./src/api /go/src/api
 RUN go install api
+RUN go test api/app/items
 CMD ["api"]

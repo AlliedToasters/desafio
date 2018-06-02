@@ -12,5 +12,19 @@ type ItemServiceInterface interface {
 	Item(id string) (*Item, error)
 	Items() ([]*Item, error)
 	CreateItem(i *Item) error
-	DeleteId(id string) (*Item, error)
+	DeleteItem(id string) (*Item, error)
+}
+
+// File type.
+type File struct {
+	ID          string `json:"id"`
+	Titulo        string `json:"titulo"`
+	Descripcion string `json:"descripcion"`
+}
+
+// Interface...
+type FileServiceInterface interface {
+	File(id string) (*File, error)
+	Files() ([]*File, error)
+	CreateFile(i *File) error
 }

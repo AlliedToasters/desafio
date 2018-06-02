@@ -64,7 +64,7 @@ func DeleteItem(c *gin.Context) {
 		return
 	}
 
-	item, err := Is.DeleteId(itemID)
+	item, err := Is.DeleteItem(itemID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "find_error", "description": err.Error()})
 		return

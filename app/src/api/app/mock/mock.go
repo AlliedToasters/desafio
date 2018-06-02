@@ -13,7 +13,7 @@ type ItemService struct {
 	CreateItemFn      func(i *models.Item) error
 	CreateItemInvoked bool
 
-	DeleteItemFn      func(id string) error
+	DeleteItemFn      func(id string) (*models.Item, error)
 	DeleteItemInvoked bool
 }
 
@@ -36,7 +36,7 @@ func (is *ItemService) CreateItem(i *models.Item) error {
 }
 
 // DeleteItem ...
-func (is *ItemService) DeleteItem(id string) error {
+func (is *ItemService) DeleteItem(id string) (*models.Item, error) {
 	is.DeleteItemInvoked = true
 	return is.DeleteItemFn(id)
 }
