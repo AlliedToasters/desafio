@@ -87,6 +87,16 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
     return tok, err
 }
 
+func HaveToken() bool {
+  tokenFile := "token.json"
+  _, err := tokenFromFile(tokenFile)
+  if err != nil {
+    return false
+  } else {
+    return true
+  }
+}
+
 // Saves a token to a file path.
 func SaveToken(path string, token *oauth2.Token) {
     fmt.Printf("Saving credential file to: %s\n", path)

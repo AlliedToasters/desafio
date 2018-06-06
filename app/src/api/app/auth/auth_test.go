@@ -28,3 +28,9 @@ func TestGetClient(t *testing.T) {
   t.Log("GetClient returned error: ")
   t.Log(err)
 }
+
+func TestHaveToken(t *testing.T) {
+  if HaveToken() {
+    t.Fatal("Should not have token saved on disk.")
+  }
+}
