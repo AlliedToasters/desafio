@@ -70,7 +70,8 @@ func createFileTable(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS files(
 		id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		titulo TEXT,
-		descripcion TEXT
+		descripcion TEXT,
+    drive_id TEXT
 	);`
 	_, err := db.Exec(sql_table)
 	if err != nil {

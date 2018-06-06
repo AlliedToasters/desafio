@@ -18,8 +18,9 @@ type ItemServiceInterface interface {
 // File type.
 type File struct {
 	ID          string `json:"id"`
-	Titulo        string `json:"titulo"`
+	Titulo      string `json:"titulo"`
 	Descripcion string `json:"descripcion"`
+  DriveID     string `json:"drive_id"`
 }
 
 // Interface...

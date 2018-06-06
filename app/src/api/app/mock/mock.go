@@ -40,3 +40,41 @@ func (is *ItemService) DeleteItem(id string) (*models.Item, error) {
 	is.DeleteItemInvoked = true
 	return is.DeleteItemFn(id)
 }
+
+type FileService struct {
+	FileFn      func(id string) (*models.File, error)
+	FileInvoked bool
+
+	FilesFn      func() ([]*models.File, error)
+	FilesInvoked bool
+
+	CreateFileFn      func(i *models.File) error
+	CreateFileInvoked bool
+}
+
+// File ...
+func (fs *FileService) File(id string) (*models.File, error) {
+	fs.FileInvoked = true
+	return fs.FileFn(id)
+}
+
+// Files ...
+func (fs *FileService) Files() ([]*models.File, error) {
+	fs.FilesInvoked = true
+	return fs.FilesFn()
+}
+
+// CreateFile ...
+func (fs *FileService) CreateFile(f *models.File) error {
+	fs.CreateFileInvoked = true
+	return fs.CreateFileFn(f)
+}
+
+
+
+/*
+type MockDriveMeta struct{
+  Id       string
+  Name     string
+}
+*/

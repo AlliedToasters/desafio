@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	//Is file service
+	//file service
 	Fs models.FileServiceInterface
 )
 
@@ -16,7 +16,9 @@ var (
 func Configure(r *gin.Engine, db *sql.DB) {
 	Fs = &FileService{DB: db}
 
+  r.POST("/auth", Authenticate)
 	r.GET("/file/:id", GetFile)
+  r.GET("/search-in-drive/:id", SearchInDrive)
 	r.POST("/file", PostFile)
 	r.GET("/file", GetFiles)
 }

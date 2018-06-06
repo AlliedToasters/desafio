@@ -10,6 +10,8 @@ def call(
         id=None,
         url='http://localhost:8080',
         uri_base='/item',
+        query_params={},
+        I = False
     ):
     """Executes REST call and returns output
     verb = GET, POST, or DELETE (string)
@@ -19,25 +21,42 @@ def call(
     uri_base = uri signiture
     kwargs = arguments to POST
     """
-    call = 'curl -s -"X" {}'.format(verb)
+    call = "curl -s "
+    if I:
+        call += "-I "
+    call += '-X "{}"'.format(verb)
     if POST != None:
         call += " -d '"
         call += json.dumps(POST) + "'"
-        print(call)
 
     call += ' {}{}'.format(url, uri_base)
-    print('\nCall: \n', call, '\n')
     if id != None:
         call += '/' + str(id)
+    if len(query_params) > 0:
+        call += '\?'
+        for param in query_params:
+            call += param + "="
+            call += query_params[param] + "&"
+    print('\nCall: \n', call, '\n')
     response = os.popen(call).read()
     print('\nResponse: \n', response, '\n')
-    try:
-        result = json.loads(response)
-    except json.decoder.JSONDecodeError:
-        print('Invalid JSON returned...')
-        errors += 1
-        return None, errors
+    if not I:
+        try:
+            result = json.loads(response)
+        except json.decoder.JSONDecodeError:
+            print('Invalid JSON returned...')
+            errors += 1
+            return None, errors
+    elif I:
+        result = response
     return result, errors
+
+def exit_test(errors):
+     """Prints a report before calling quit()"""
+     print('\n Test script run with {} errors.'.format(errors))
+     quit()
+     return
+
 
 if __name__ in '__main__':
     errors = 0
@@ -154,91 +173,59 @@ if __name__ in '__main__':
         print('Expected error response from DELETE call, got: ', response)
 
     #Test the Google Drive API DB interface
-    titulos = [
-        'documento1.docx',
-        'documento2.txt',
-        'image0.png'
-    ]
-
-    descripciones = [
-        'a formatted text document',
-        'a raw text file',
-        'an image file'
-    ]
-
-    ids = []
-
-    response, errors = call('GET', errors, id=-1, uri_base='/file')
-    if response == None:
-        print('Script exited early with {} errors.'.format(errors))
-        print('Did not recieve JSON response from server.')
-        quit()
+    response, errors = call('GET', errors, id=1, uri_base='/file')
     try:
-        assert 'error' in response
-    except AssertionError:
+        auth_url = response['description']
+        auth_code = input("Go to URL and paste code here: \n{}\n".format(auth_url))
+        post = {'auth_code':auth_code}
+        response, errors = call('POST', errors, POST=post, uri_base='/auth')
+        try:
+            if "success" not in response:
+                errors += 1
+                print("Authentication failed. Exiting...")
+                exit_test(errors)
+        except TypeError:
+            errors += 1
+            print("Authentication failed. Exiting...")
+            exit_test(errors)
+    except KeyError:
+        try:
+            response["id"]
+        except KeyError:
+            errors += 1
+            print("unexpected response: ", response)
+
+
+    response, errors = call('GET', errors, uri_base='/file')
+
+    response, errors = call('GET', errors, id=1, uri_base='/file')
+
+    query = {"word":"dev"}
+    response, errors = call(
+        'GET',
+        errors,
+        id=1,
+        uri_base='/search-in-drive',
+        query_params=query,
+        I=True
+    )
+    code = response.split(" ")[1]
+    if code != "200":
         errors += 1
-        print('Expected error response. Got: {}'.format(response))
+        print("Error: Expected code response 200. Got: ", code)
 
-    for n in range(3):
-        post = {'titulo':titulos[n], 'descripcion':descripciones[n]}
-        response, errors = call('POST', errors, POST=post, uri_base='/file')
-        ids.append(response['id'])
-
-    for i, id in enumerate(ids):
-        response, errors = call('GET', errors, id=id, uri_base='/file')
-        try:
-            assert response['titulo'] == titulos[i]
-        except AssertionError:
-            errors += 1
-            print('Expected titulo {} at id {}. Got: {}'.format(
-                titulo[i],
-                id,
-                response['titulo']
-            ))
-    try:
-        assert response['descripcion'] == descripciones[i]
-    except AssertionError:
+    query = {"word":"honk"}
+    response, errors = call(
+        'GET',
+        errors,
+        id=1,
+        uri_base='/search-in-drive',
+        query_params=query,
+        I=True
+    )
+    code = response.split(" ")[1]
+    if code != "404":
         errors += 1
-        print('Expected descripcion {} at id {}. Got: {}'.format(
-            descripciones[i],
-            id,
-            response['descripcion']
-        ))
+        print("Error: Expected code response 404. Got: ", code)
 
-    table, errors = call('GET', errors, uri_base='/file')
-    results = dict()
-    results['id'] = []
-    results['titulo'] = []
-    results['descripcion'] = []
-    for documento in table:
-        results['id'].append(documento['id'])
-        results['titulo'].append(documento['titulo'])
-        results['descripcion'].append(documento['descripcion'])
-
-    idxs = []
-    for i, id in enumerate(ids):
-        idx = results['id'].index(str(id))
-        idxs.append(idx)
-        try:
-            assert results['titulo'][idx] == titulos[i]
-        except:
-            errors += 1
-            print('Expected name {} at id {}. Got: {}'.format(
-                titulos[i],
-                id,
-                results['titulos'][idx]
-            ))
-        try:
-            assert results['descripcion'][idx] == descripciones[i]
-        except:
-            errors += 1
-            print('Expected descripcion {} at id {}. Got: {}'.format(
-                descripciones[i],
-                id,
-                results['descripcion'][idx]
-            ))
-
-
-
-
-    print('\n Test script run with {} errors.'.format(errors))
+    exit_test(errors)
