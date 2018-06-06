@@ -30,25 +30,30 @@ func TestGetFilesFromDrive(t *testing.T) {
   router.ServeHTTP(w, r)
 }
 
-func TestSearchFile(t *testing.T) {
-  body := "This is the sentence body."
-  word := "sentence"
-  found, err := searchFile(body, word)
+func TestSearchForMatch(t *testing.T) {
+  var matches []*string
+  entry := "abc123"
+  matches = append(matches, &entry)
+  entry2 := "def456"
+  matches = append(matches, &entry2)
+  entry3 := "xyz999"
+  matches = append(matches, &entry3)
+  match := "def456"
+  nonmatch := "hhd918"
+  found, err := searchForMatch(match, matches)
+  if err != nil {
+    t.Fatal("Error matching: ", err.Error())
+  }
   if !found {
-    t.Fatal("Expected match to be true.")
+    t.Fatal("Failed to match: ", match, matches)
   }
+  found, err = searchForMatch(nonmatch, matches)
   if err != nil {
-    t.Log(err.Error())
+    t.Fatal("Error matching: ", err.Error())
   }
-  word = "not"
-  found, err = searchFile(body, word)
   if found {
-    t.Fatal("Expected match to be false.")
+    t.Fatal("False match: ", match, matches)
   }
-  if err != nil {
-    t.Log(err.Error())
-  }
-
 }
 
 /*

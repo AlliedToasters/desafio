@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strings"
   "fmt"
-  "io/ioutil"
-  "regexp"
 
 	"api/app/models"
   "api/app/auth"
@@ -112,12 +110,14 @@ func SearchInDrive(c *gin.Context) {
     c.JSON(http.StatusBadRequest, gin.H{"error":"db_error","description":"file not found"})
     return
   }
-  content, err := getFileContent(driveID)
   if err!= nil {
     c.JSON(http.StatusBadRequest, gin.H{"error":"drive_error","description":err.Error()})
     return
   }
-  found, err := searchFile(content, word)
+  matches, err := getWordQuery(word)
+  fmt.Print("Got matches: \n")
+  fmt.Print(matches)
+  found, err := searchForMatch(driveID, matches)
   if !found {
     c.Status(404)
     return
@@ -130,26 +130,40 @@ func SearchInDrive(c *gin.Context) {
   return
 }
 
-func searchFile(content string, word string) (bool, error) {
-  exp := fmt.Sprintf(" %s ", word)
-  match, err := regexp.Match(exp, []byte(content))
-  return match, err
+func searchForMatch(driveID string, matches []*string) (bool, error) {
+  for _, v := range matches {
+    if driveID == *v {
+      return true, nil
+    }
+  }
+  return false, nil
 }
 
-func getFileContent(driveID string) (string, error) {
+func getWordQuery(word string) ([]*string, error) {
+  var result []*string
   client, err := auth.GetClient()
   if err != nil {
-    return "", err
+    return result, err
   }
   srv, err := drive.New(client)
   if err != nil {
-    return "", err
+    return result, err
   }
-  r, err := srv.Files.Export(driveID, "text/plain").Download()//.Do("alts=media")
-  defer r.Body.Close()
-  body, err := ioutil.ReadAll(r.Body)
-  bodyString := string(body)
-  return bodyString, err
+  q_query := fmt.Sprintf(`fullText contains '"%s"'`, word)
+  fmt.Print("q query:")
+  fmt.Print(q_query)
+  r, err := srv.Files.List().Fields("files(id)").Q(q_query).Do()
+  if err != nil {
+    return result, err
+  }
+  if len(r.Files) == 0 {
+    fmt.Println("No matching files found.")
+    return result, err
+  }
+  for _, i := range r.Files {
+    result = append(result, &i.Id)
+  }
+  return result, nil
 }
 
 // GetFiles ...
