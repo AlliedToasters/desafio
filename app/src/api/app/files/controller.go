@@ -54,7 +54,7 @@ func getFilesFromDrive(c *gin.Context) error {
     //c.JSON(404, gin.H{"error":"find_error", "description":err.Error()})
     return err
   }
-  r, err := srv.Files.List().PageSize(1000).
+  r, err := srv.Files.List().PageSize(100).
           Fields("nextPageToken, files(id, name, description)").Do()
   if err != nil{
     //c.JSON(404, gin.H{"error":"find_error", "description":err.Error()})
