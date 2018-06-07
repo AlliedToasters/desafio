@@ -1,6 +1,7 @@
 import __future__
 import os
 import json
+import os
 
 def call(
         verb,
@@ -184,6 +185,9 @@ if __name__ in '__main__':
                 errors += 1
                 print("Authentication failed. Exiting...")
                 exit_test(errors)
+            else:
+                print("Authentication success. Waiting for database to populate...")
+                os.system("sleep 5")
         except TypeError:
             errors += 1
             print("Authentication failed. Exiting...")
@@ -194,6 +198,7 @@ if __name__ in '__main__':
         except KeyError:
             errors += 1
             print("unexpected response: ", response)
+
 
 
     response, errors = call('GET', errors, uri_base='/file')

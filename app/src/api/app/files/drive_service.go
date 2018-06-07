@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
   "fmt"
-  "time"
 
 	"api/app/models"
   "api/app/auth"
@@ -29,8 +28,6 @@ func Authenticate(c *gin.Context) {
   save_path := "token.json"
   auth.SaveToken(save_path, tok)
   go getFileHandler(c)
-  //give our goroutine time to start filling database
-  time.Sleep(5*time.Second)
   c.JSON(200, gin.H{"success":"authentication_success"})
   return
 }
@@ -108,8 +105,6 @@ func SearchInDrive(c *gin.Context) {
     return
   }
   matches, err := getWordQuery(word)
-  fmt.Print("Got matches: \n")
-  fmt.Print(matches)
   found, err := searchForMatch(driveID, matches)
   if !found {
     c.Status(404)
