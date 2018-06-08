@@ -60,6 +60,7 @@ def exit_test(errors):
 
 
 if __name__ in '__main__':
+
     errors = 0
 
     names = [
@@ -173,7 +174,7 @@ if __name__ in '__main__':
         errors += 1
         print('Expected error response from DELETE call, got: ', response)
 
-    #Test the Google Drive API DB interface
+    #Test the Google Drive API interface
     response, errors = call('GET', errors, id=1, uri_base='/file')
     try:
         auth_url = response['description']
@@ -186,8 +187,7 @@ if __name__ in '__main__':
                 print("Authentication failed. Exiting...")
                 exit_test(errors)
             else:
-                print("Authentication success. Waiting for database to populate...")
-                os.system("sleep 5")
+                print("Authentication success!")
         except TypeError:
             errors += 1
             print("Authentication failed. Exiting...")
@@ -232,5 +232,28 @@ if __name__ in '__main__':
     if code != "404":
         errors += 1
         print("Error: Expected code response 404. Got: ", code)
+
+    #test POST /file (ya no funciona)
+
+#    post = {"titulo":"Pagos a prov", "descripcion":"Tengo que hacer un pago"}
+#    response, errors = call('POST', errors, POST=post, uri_base='/file')
+#    try:
+#        response_id = response['id']
+#        titulo = response['titulo']
+#        descripcion = response['descripcion']
+#        try:
+#            assert titulo == "Pagos a prov"
+#        except AssertionError:
+#            errors += 1
+#            print("Unexpected titulo: ", titulo)
+#        try:
+#        except AssertionError:
+#            errors += 1
+#            print("Unexpected descripcion: ", descipcion)
+#    except:
+#        errors += 1
+#        print("unexpected response: ", response)
+
+
 
     exit_test(errors)

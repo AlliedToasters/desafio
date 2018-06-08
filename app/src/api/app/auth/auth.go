@@ -17,11 +17,12 @@ import (
 )
 
 //Invoked when authorization fails
-type authError struct {
+type AuthError struct {
   url string
 }
 
-func (err authError) Error() string {
+func (err AuthError) Error() string {
+  err.url = GetAuthCodeURL()
   return err.url
 }
 
@@ -46,8 +47,7 @@ func GetClient() (*http.Client, error) {
   fmt.Print("Looking for token in file...")
   client, err := clientFromFile(config)
   if err != nil {
-    var auth_err authError
-    auth_err.url = GetAuthCodeURL()
+    var auth_err AuthError
     return client, auth_err
   }
   return client, err

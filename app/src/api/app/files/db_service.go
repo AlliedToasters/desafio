@@ -4,20 +4,17 @@ import (
 	"api/app/models"
 	"database/sql"
 	"strconv"
-  "google.golang.org/api/drive/v3"
 )
 
-// FileService ...
-type FileService struct {
-  //tok *oauth2.Token
-  d_srv *drive.Service
+// File database service ...
+type FileDBService struct {
 	DB *sql.DB
 }
 
 // File ...
-func (s *FileService) File(id string) (*models.File, error) {
+func (fdbs *FileDBService) File(id string) (*models.File, error) {
 	var f models.File
-	row := s.DB.QueryRow(
+	row := fdbs.DB.QueryRow(
     `SELECT id, titulo, descripcion, drive_id
     FROM files
     WHERE id = ?`,
@@ -28,9 +25,15 @@ func (s *FileService) File(id string) (*models.File, error) {
 	return &f, nil
 }
 
+//Lookup drive ID given :id
+func (fdbs *FileDBService) GetDriveID(fileID string) (string, error) {
+  file, err := Fdbs.File(fileID)
+  return file.DriveID, err
+}
+
 // Files ...
-func (s *FileService) Files() ([]*models.File, error) {
-	rows, err := s.DB.Query(`SELECT id, titulo, descripcion, drive_id FROM files`)
+func (fdbs *FileDBService) Files() ([]*models.File, error) {
+	rows, err := fdbs.DB.Query(`SELECT id, titulo, descripcion, drive_id FROM files`)
   defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -47,8 +50,8 @@ func (s *FileService) Files() ([]*models.File, error) {
 }
 
 // CreateFile ...
-func (s *FileService) CreateFile(f *models.File) error {
-	stmt, err := s.DB.Prepare(`INSERT INTO files(titulo, descripcion, drive_id)
+func (fdbs *FileDBService) CreateFile(f *models.File) error {
+	stmt, err := fdbs.DB.Prepare(`INSERT INTO files(titulo, descripcion, drive_id)
   values(?, ?, ?)`)
 	if err != nil {
 		return err
@@ -67,4 +70,11 @@ func (s *FileService) CreateFile(f *models.File) error {
 
 	f.ID = strconv.Itoa(int(id))
 	return nil
+}
+
+func (fdbs *FileDBService) StoreFiles(files []*models.File) error {
+  for _, file := range files {
+    fdbs.CreateFile(file)
+  }
+  return nil
 }

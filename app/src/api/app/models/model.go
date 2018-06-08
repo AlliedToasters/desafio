@@ -23,9 +23,20 @@ type File struct {
   DriveID     string `json:"drive_id"`
 }
 
-// Interface...
-type FileServiceInterface interface {
+// Database Interface...
+type FileDBServiceInterface interface {
 	File(id string) (*File, error)
+  GetDriveID(id string) (string, error)
 	Files() ([]*File, error)
-	CreateFile(i *File) error
+	CreateFile(f *File) error
+	StoreFiles(files []*File) error
+}
+
+// Drive Interface...
+type FileDriveServiceInterface interface {
+  GetClient(code string) error
+  GetAuthenticateURL() string
+  GetFilesFromDrive() ([]*File, error)
+	GetWordQuery(word string) ([]*string, error)
+  DrivePostFile(f *File) error
 }

@@ -14,7 +14,7 @@ RUN cp ./src/api/app/data/client_secret.json .
 RUN rm ./src/api/app/data/client_secret.json
 
 RUN go install api
-RUN go test api/app/items
-RUN go test api/app/files
+RUN go test -v api/app/items
+RUN go test -v api/app/files
 RUN go test api/app/auth
 CMD ["api"]

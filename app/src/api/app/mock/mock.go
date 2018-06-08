@@ -1,7 +1,6 @@
 package mock
 
 import "api/app/models"
-
 // ItemService ...
 type ItemService struct {
 	ItemFn      func(id string) (*models.Item, error)
@@ -41,40 +40,87 @@ func (is *ItemService) DeleteItem(id string) (*models.Item, error) {
 	return is.DeleteItemFn(id)
 }
 
-type FileService struct {
+type FileDBService struct {
 	FileFn      func(id string) (*models.File, error)
 	FileInvoked bool
+
+  GetDriveIDFn func(string) (string, error)
+  GetDriveIDInvoked bool
 
 	FilesFn      func() ([]*models.File, error)
 	FilesInvoked bool
 
-	CreateFileFn      func(i *models.File) error
+	CreateFileFn      func(f *models.File) error
 	CreateFileInvoked bool
+
+  StoreFilesFn func(files []*models.File) error
+  StoreFilesInvoked bool
 }
 
-// File ...
-func (fs *FileService) File(id string) (*models.File, error) {
-	fs.FileInvoked = true
-	return fs.FileFn(id)
+func (fdbs *FileDBService) File(id string) (*models.File, error) {
+	fdbs.FileInvoked = true
+	return fdbs.FileFn(id)
 }
 
-// Files ...
-func (fs *FileService) Files() ([]*models.File, error) {
-	fs.FilesInvoked = true
-	return fs.FilesFn()
+func (fdbs *FileDBService) GetDriveID(id string) (string, error) {
+	fdbs.GetDriveIDInvoked = true
+	return fdbs.GetDriveIDFn(id)
 }
 
-// CreateFile ...
-func (fs *FileService) CreateFile(f *models.File) error {
-	fs.CreateFileInvoked = true
-	return fs.CreateFileFn(f)
+func (fdbs *FileDBService) Files() ([]*models.File, error) {
+	fdbs.FilesInvoked = true
+	return fdbs.FilesFn()
 }
 
-
-
-/*
-type MockDriveMeta struct{
-  Id       string
-  Name     string
+func (fdbs *FileDBService) CreateFile(f *models.File) error {
+	fdbs.CreateFileInvoked = true
+	return fdbs.CreateFileFn(f)
 }
-*/
+
+func (fdbs *FileDBService) StoreFiles(files []*models.File) error {
+	fdbs.StoreFilesInvoked = true
+	return fdbs.StoreFilesFn(files)
+}
+
+type FileDriveService struct {
+
+  GetClientFn func(code string) error
+  GetClientInvoked bool
+
+	GetAuthenticateURLFn      func() string
+	GetAuthenticateURLInvoked bool
+
+	GetFilesFromDriveFn      func() ([]*models.File, error)
+	GetFilesFromDriveInvoked bool
+
+  GetWordQueryFn func(word string) ([]*string, error)
+  GetWordQueryInvoked bool
+
+  DrivePostFileFn func(f *models.File) error
+  DrivePostFileInvoked bool
+}
+
+func (fds *FileDriveService) GetClient(code string) error {
+	fds.GetClientInvoked = true
+	return fds.GetClientFn(code)
+}
+
+func (fds *FileDriveService) GetAuthenticateURL() string {
+	fds.GetAuthenticateURLInvoked = true
+	return fds.GetAuthenticateURLFn()
+}
+
+func (fds *FileDriveService) GetFilesFromDrive() ([]*models.File, error) {
+	fds.GetFilesFromDriveInvoked = true
+	return fds.GetFilesFromDriveFn()
+}
+
+func (fds *FileDriveService) GetWordQuery(word string) ([]*string, error) {
+	fds.GetWordQueryInvoked = true
+	return fds.GetWordQueryFn(word)
+}
+
+func (fds *FileDriveService) DrivePostFile(f *models.File) error {
+	fds.DrivePostFileInvoked = true
+	return fds.DrivePostFileFn(f)
+}

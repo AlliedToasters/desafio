@@ -3,22 +3,24 @@ package files
 import (
 	"api/app/models"
 	"database/sql"
+  "net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	//file service
-	Fs models.FileServiceInterface
+	Fdbs models.FileDBServiceInterface
+  Fds models.FileDriveServiceInterface
 )
 
 // Configure for files
 func Configure(r *gin.Engine, db *sql.DB) {
-	Fs = &FileService{DB: db}
+	Fdbs = &FileDBService{DB: db}
+  Fds = &FileDriveService{Client: &http.Client{}}
 
   r.POST("/auth", Authenticate)
 	r.GET("/file/:id", GetFile)
   r.GET("/search-in-drive/:id", SearchInDrive)
-	r.POST("/file", PostFile)
+	r.POST("/file", nil)
 	r.GET("/file", GetFiles)
 }
