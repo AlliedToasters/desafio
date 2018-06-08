@@ -3,6 +3,7 @@ FROM golang:latest
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/go-sql-driver/mysql
 RUN go get -u google.golang.org/api/drive/v3
+RUN go get -u google.golang.org/api/googleapi
 RUN go get -u golang.org/x/oauth2/...
 RUN go get -u github.com/jteeuwen/go-bindata/...
 

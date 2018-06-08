@@ -8,8 +8,7 @@ import (
 	"net/http/httptest"
   "strings"
   "encoding/json"
-
-	//"api/app/models"
+  "errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -200,5 +199,126 @@ func TestsearchForMatch(t *testing.T) {
   }
   if found {
     t.Fatal("False match: ", match, matches)
+  }
+}
+
+func TestPostFile(t *testing.T) {
+	router := gin.Default()
+	Configure(router, nil)
+
+  //Mock db interface
+  var fdbs mock.FileDBService
+  Fdbs = &fdbs
+  //Mock drive interface
+  var fds mock.FileDriveService
+  Fds = &fds
+
+  fds.DrivePostFileFn = func(f *models.File) (*models.File, error) {
+    if f.Descripcion != "Tengo que hacer un pago" {
+      t.Fatal("Mala descripcion")
+    }
+    if f.Titulo != "Pagos a prov" {
+      t.Fatal("Mal titulo")
+    }
+    f.DriveID = "abc123"
+    return f, nil
+  }
+
+  fdbs.CreateFileFn = func(f *models.File) error {
+    if f.DriveID != "abc123" {
+      t.Fatal("DriveID not changed to abc123")
+    }
+    f.ID = "100"
+    return nil
+  }
+
+  body := `{"titulo":"Pagos a prov", "descripcion":"Tengo que hacer un pago"}`
+  reader := strings.NewReader(body)
+	r, _ := http.NewRequest("POST", "/file", reader)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+  if !fds.DrivePostFileInvoked {
+    t.Fatal("expected fds.DrivePostFile() to be invoked")
+  }
+  if !fdbs.CreateFileInvoked {
+    t.Fatal("expected fdbs.CreateFile() to be invoked")
+  }
+  if w.Code != 200 {
+  }
+  result_file := models.File{}
+  result_bytes := w.Body.Bytes()
+  err := json.Unmarshal(result_bytes, &result_file)
+  if err != nil {
+    t.Fatal(err.Error())
+  }
+
+  if result_file.ID != "100" {
+    t.Log("Expected result_file.ID == '100'. Got: \n")
+    t.Fatal(result_file.ID)
+  }
+}
+
+
+
+func TestPostFileBadParams(t *testing.T) {
+	router := gin.Default()
+	Configure(router, nil)
+
+  //Mock db interface
+  var fdbs mock.FileDBService
+  Fdbs = &fdbs
+  //Mock drive interface
+  var fds mock.FileDriveService
+  Fds = &fds
+
+  fds.DrivePostFileFn = func(f *models.File) (*models.File, error) {
+    return f, nil
+  }
+
+  fdbs.CreateFileFn = func(f *models.File) error {
+    return nil
+  }
+
+  body := `{"malos":"dato", "parametros":"dato"}`
+  reader := strings.NewReader(body)
+  r, _ := http.NewRequest("POST", "/file", reader)
+  w := httptest.NewRecorder()
+  router.ServeHTTP(w, r)
+  if w.Code != 400 {
+    t.Log("Bad code. Expected 400, got: \n")
+    t.Fatal(w.Code)
+  }
+}
+
+
+
+func TestPostFileNoPuede(t *testing.T) {
+	router := gin.Default()
+	Configure(router, nil)
+
+  //Mock db interface
+  var fdbs mock.FileDBService
+  Fdbs = &fdbs
+  //Mock drive interface
+  var fds mock.FileDriveService
+  Fds = &fds
+
+  fds.DrivePostFileFn = func(f *models.File) (*models.File, error) {
+    err := errors.New("Could not create.")
+    return nil, err
+  }
+
+  fdbs.CreateFileFn = func(f *models.File) error {
+    return nil
+  }
+
+  body := `{"titulo":"Pagos a prov", "descripcion":"Tengo que hacer un pago"}`
+  reader := strings.NewReader(body)
+  r, _ := http.NewRequest("POST", "/file", reader)
+  w := httptest.NewRecorder()
+  router.ServeHTTP(w, r)
+  if w.Code != 500 {
+    t.Log("Bad code. Expected 500, got: \n")
+    t.Fatal(w.Code)
   }
 }

@@ -99,8 +99,6 @@ func TestPostItem(t *testing.T) {
   reader := strings.NewReader(msg)
 	r, _ := http.NewRequest("POST", "/item", reader)
 	router.ServeHTTP(w, r)
-  t.Log(w.Code)
-  t.Log(w.Body)
   if !is.CreateItemInvoked {
     t.Fatal("expected CreateItem() to be invoked")
   }

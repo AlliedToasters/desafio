@@ -5,7 +5,7 @@ import (
 	"strings"
   "fmt"
 
-	//"api/app/models"
+	"api/app/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -140,4 +140,25 @@ func GetFiles(c *gin.Context) {
   }
 	c.JSON(200, files)
 	return
+}
+
+// Create new file in db
+func PostFile(c *gin.Context) {
+	f := &models.File{}
+	if err := c.BindJSON(f); c.Request.ContentLength == 0 || err != nil {
+		c.JSON(400, gin.H{"error": "parameter error", "description": err.Error()})
+		return
+	}
+  f, err := Fds.DrivePostFile(f)
+  if err != nil {
+    c.JSON(500, gin.H{"error":"could not create", "description":err.Error()})
+    return
+  }
+	err = Fdbs.CreateFile(f)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "save_error", "description": err.Error()})
+		return
+	}
+	c.JSON(200, f)
+  return
 }

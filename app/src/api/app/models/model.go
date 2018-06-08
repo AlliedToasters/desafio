@@ -18,8 +18,8 @@ type ItemServiceInterface interface {
 // File type.
 type File struct {
 	ID          string `json:"id"`
-	Titulo      string `json:"titulo"`
-	Descripcion string `json:"descripcion"`
+	Titulo      string `json:"titulo" binding:"required"`
+	Descripcion string `json:"descripcion" binding:"required"`
   DriveID     string `json:"drive_id"`
 }
 
@@ -38,5 +38,5 @@ type FileDriveServiceInterface interface {
   GetAuthenticateURL() string
   GetFilesFromDrive() ([]*File, error)
 	GetWordQuery(word string) ([]*string, error)
-  DrivePostFile(f *File) error
+  DrivePostFile(f *File) (*File, error)
 }

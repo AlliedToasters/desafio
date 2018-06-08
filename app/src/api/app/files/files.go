@@ -21,6 +21,6 @@ func Configure(r *gin.Engine, db *sql.DB) {
   r.POST("/auth", Authenticate)
 	r.GET("/file/:id", GetFile)
   r.GET("/search-in-drive/:id", SearchInDrive)
-	r.POST("/file", nil)
+	r.POST("/file", PostFile)
 	r.GET("/file", GetFiles)
 }

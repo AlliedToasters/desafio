@@ -51,7 +51,7 @@ func (fdbs *FileDBService) Files() ([]*models.File, error) {
 
 // CreateFile ...
 func (fdbs *FileDBService) CreateFile(f *models.File) error {
-	stmt, err := fdbs.DB.Prepare(`INSERT INTO files(titulo, descripcion, drive_id)
+	stmt, err := fdbs.DB.Prepare(`INSERT IGNORE INTO files(titulo, descripcion, drive_id)
   values(?, ?, ?)`)
 	if err != nil {
 		return err

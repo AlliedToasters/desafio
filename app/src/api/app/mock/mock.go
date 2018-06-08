@@ -96,7 +96,7 @@ type FileDriveService struct {
   GetWordQueryFn func(word string) ([]*string, error)
   GetWordQueryInvoked bool
 
-  DrivePostFileFn func(f *models.File) error
+  DrivePostFileFn func(f *models.File) (*models.File, error)
   DrivePostFileInvoked bool
 }
 
@@ -120,7 +120,7 @@ func (fds *FileDriveService) GetWordQuery(word string) ([]*string, error) {
 	return fds.GetWordQueryFn(word)
 }
 
-func (fds *FileDriveService) DrivePostFile(f *models.File) error {
+func (fds *FileDriveService) DrivePostFile(f *models.File) (*models.File, error) {
 	fds.DrivePostFileInvoked = true
 	return fds.DrivePostFileFn(f)
 }

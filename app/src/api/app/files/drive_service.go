@@ -2,7 +2,7 @@ package files
 
 import (
 	"net/http"
-	//"strings"
+	"strings"
   "fmt"
 
 	"api/app/models"
@@ -10,6 +10,7 @@ import (
 
 	//"github.com/gin-gonic/gin"
   "google.golang.org/api/drive/v3"
+  "google.golang.org/api/googleapi"
 )
 
 // File drive service ...
@@ -84,8 +85,24 @@ func (fds *FileDriveService) GetWordQuery(word string) ([]*string, error) {
   return result, nil
 }
 
+
 //Posts file to drive
-func (fds *FileDriveService) DrivePostFile(f *models.File) error {
-  _ = f
-  return nil
+func (fds *FileDriveService) DrivePostFile(f *models.File) (*models.File, error) {
+  client := fds.Client
+  srv, err := drive.New(client)
+  if err != nil {
+    return nil, err
+  }
+  drive_file := &drive.File{
+    Name:     f.Titulo,
+    MimeType: "text/plain",
+  }
+  reader := strings.NewReader("")
+  //r, err := srv.Files().Insert(drive_file)
+  r, err := srv.Files.Create(drive_file).Media(reader, googleapi.ContentType("text/plain")).Do()
+  if err != nil {
+    return f, err
+  }
+  f.DriveID = r.Id
+  return f, nil
 }

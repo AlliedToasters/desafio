@@ -58,7 +58,7 @@ func getConfig() (*oauth2.Config, error) {
     if err != nil {
             log.Fatalf("Unable to read client secret file: %v", err)
     }
-    config, err := google.ConfigFromJSON(b, drive.DriveMetadataReadonlyScope)
+    config, err := google.ConfigFromJSON(b, drive.DriveScope)
     return config, err
 }
 
